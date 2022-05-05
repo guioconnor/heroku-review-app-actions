@@ -56,6 +56,13 @@ runs:
       id: source_endpoint
       shell: bash
       run: |
+        curl -X POST https://api.heroku.com/sources \
+        -H "Content-Type: application/json" \
+        -H "Accept: application/vnd.heroku+json; version=3" \
+        -H "Authorization: Bearer ${{ inputs.api-key }}"
+
+        echo "=============="
+
         echo ::set-output name=SOURCE_ENDPOINT::$(curl -X POST https://api.heroku.com/sources \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
