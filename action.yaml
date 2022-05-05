@@ -6,10 +6,10 @@ inputs:
     description: "Prefix for the app. This is can be the name of the pipeline e.g vercel prefix will produce vercel-pr-PR_NUMBER.herokuapp.com"
     required: false
     default: ""
-  api-key:
+  heroku_api_token:
     description: "Your Heroku API key"
     required: true
-  pipeline-id:
+  pipeline_id:
     description: "The id of the pipeline to deploy review app for"
     required: true
   region:
@@ -59,16 +59,16 @@ runs:
         curl -X POST https://api.heroku.com/sources \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
-        -H "Authorization: Bearer ${{ inputs.api-key }}"
+        -H "Authorization: Bearer ${{ inputs.heroku_api_token }}"
 
         echo "=============="
-        echo "${{ inputs.api-key }}"
+        echo "${{ inputs.heroku_api_token }}"
         echo "=============="
 
         echo ::set-output name=SOURCE_ENDPOINT::$(curl -X POST https://api.heroku.com/sources \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
-        -H "Authorization: Bearer ${{ inputs.api-key }}" | \
+        -H "Authorization: Bearer ${{ inputs.heroku_api_token }}" | \
         jq -r '{get: .source_blob.get_url, put: .source_blob.put_url}')
     - name: Compress Source Code
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
@@ -95,7 +95,7 @@ runs:
         }' \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
-        -H "Authorization: Bearer ${{ inputs.api-key }}"
+        -H "Authorization: Bearer ${{ inputs.heroku_api_token }}"
     - name: "Create App (Setup with app.json)"
       if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened') && inputs.use-app-json == 'true' && inputs.team == '' }}
       shell: bash
@@ -111,7 +111,7 @@ runs:
         }' \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
-        -H "Authorization: Bearer ${{ inputs.api-key }}"
+        -H "Authorization: Bearer ${{ inputs.heroku_api_token }}"
     - name: "Create Team App (Setup with app.json)"
       if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened') && inputs.use-app-json == 'true' && inputs.team != '' }}
       shell: bash
@@ -128,7 +128,7 @@ runs:
         }' \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
-        -H "Authorization: Bearer ${{ inputs.api-key }}"
+        -H "Authorization: Bearer ${{ inputs.heroku_api_token }}"
     - name: Update Pipeline
       if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened') }}
       shell: bash
@@ -141,7 +141,7 @@ runs:
         }' \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
-        -H "Authorization: Bearer ${{ inputs.api-key }}"
+        -H "Authorization: Bearer ${{ inputs.heroku_api_token }}"
     - name: Create Build
       if: ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || ((github.event.action == 'opened' || github.event.action == 'reopened') && inputs.use-app-json == 'false')) }}
       shell: bash
@@ -151,7 +151,7 @@ runs:
         -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${{ github.event.pull_request.head.sha }}"'"}}' \
         -H 'Accept: application/vnd.heroku+json; version=3' \
         -H "Content-Type: application/json" \
-        -H "Authorization: Bearer ${{ inputs.api-key }}" | \
+        -H "Authorization: Bearer ${{ inputs.heroku_api_token }}" | \
         jq -r '.output_stream_url')
         curl $OUTPUT_STREAM_URL
     - name: Set Output:url
@@ -165,4 +165,4 @@ runs:
         curl -X DELETE https://api.heroku.com/apps/$APP_NAME \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
-        -H "Authorization: Bearer ${{ inputs.api-key }}"
+        -H "Authorization: Bearer ${{ inputs.heroku_api_token }}"
