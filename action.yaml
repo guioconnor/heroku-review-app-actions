@@ -60,6 +60,7 @@ runs:
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.api-key }}"
+        echo "${{ inputs.api-key }}"
 
         echo "=============="
 
