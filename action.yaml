@@ -56,7 +56,7 @@ runs:
       id: source_endpoint
       shell: bash
       run: |
-        echo ::set-output name=SOURCE_ENDPOINT::$(curl -X -f POST https://api.heroku.com/sources \
+        echo ::set-output name=SOURCE_ENDPOINT::$(curl -X POST https://api.heroku.com/sources \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.api-key }}" | \
@@ -78,7 +78,7 @@ runs:
       if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened') && inputs.use-app-json == 'false' }}
       shell: bash
       run: |
-        curl -X -f POST https://api.heroku.com/apps \
+        curl -X POST https://api.heroku.com/apps \
         -d '{
         "name": "'"$APP_NAME"'",
         "region": "${{ inputs.region }}",
@@ -92,7 +92,7 @@ runs:
       shell: bash
       run: |
         export SOURCE_GET_URL=$(echo ${{ toJSON(steps.source_endpoint.outputs.SOURCE_ENDPOINT) }} | jq -r '.get')
-        curl -X -f POST https://api.heroku.com/app-setups \
+        curl -X POST https://api.heroku.com/app-setups \
         -d '{
         "source_blob": {"url": "'"$SOURCE_GET_URL"'", "version": "'"${{ github.event.pull_request.head.sha }}"'"},
         "app": {
@@ -108,7 +108,7 @@ runs:
       shell: bash
       run: |
         export SOURCE_GET_URL=$(echo ${{ toJSON(steps.source_endpoint.outputs.SOURCE_ENDPOINT) }} | jq -r '.get')
-        curl -X -f POST https://api.heroku.com/app-setups \
+        curl -X POST https://api.heroku.com/app-setups \
         -d '{
         "source_blob": {"url": "'"$SOURCE_GET_URL"'", "version": "'"${{ github.event.pull_request.head.sha }}"'"},
         "app": {
@@ -124,7 +124,7 @@ runs:
       if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened') }}
       shell: bash
       run: |
-        curl -X -f POST https://api.heroku.com/pipeline-couplings \
+        curl -X POST https://api.heroku.com/pipeline-couplings \
           -d '{
           "app": "'"$APP_NAME"'",
           "pipeline": "'"${{ inputs.pipeline-id }}"'",
@@ -138,7 +138,7 @@ runs:
       shell: bash
       run: |
         export SOURCE_GET_URL=$(echo ${{ toJSON(steps.source_endpoint.outputs.SOURCE_ENDPOINT) }} | jq -r '.get')
-        export OUTPUT_STREAM_URL=$(curl -X -f POST https://api.heroku.com/apps/$APP_NAME/builds \
+        export OUTPUT_STREAM_URL=$(curl -X POST https://api.heroku.com/apps/$APP_NAME/builds \
         -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${{ github.event.pull_request.head.sha }}"'"}}' \
         -H 'Accept: application/vnd.heroku+json; version=3' \
         -H "Content-Type: application/json" \
@@ -153,7 +153,7 @@ runs:
       if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
       shell: bash
       run: |
-        curl -X -f DELETE https://api.heroku.com/apps/$APP_NAME \
+        curl -X DELETE https://api.heroku.com/apps/$APP_NAME \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.api-key }}"
