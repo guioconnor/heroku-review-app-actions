@@ -60,8 +60,9 @@ runs:
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.api-key }}"
-        echo "${{ inputs.api-key }}"
 
+        echo "=============="
+        echo "${{ inputs.api-key }}"
         echo "=============="
 
         echo ::set-output name=SOURCE_ENDPOINT::$(curl -X POST https://api.heroku.com/sources \
